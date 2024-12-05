@@ -1,5 +1,5 @@
 import re
-
+from functools import cmp_to_key
 
 def part1():
     pairs = []
@@ -23,12 +23,17 @@ def part1():
 
         if works == len(updates[i]) - 1:
             good.append(updates[i])
-
+    
     sum = 0
     for i in good:
         sum += int(i[int((len(i) - 1) / 2)])
     print(sum)
 
+def sorting(x,y,dict):
+    if y in dict[x]:
+        return -1
+    else:
+        return 1
 
 def part2():
     pairs = []
@@ -46,28 +51,21 @@ def part2():
     for i in pairs:
         if i[0] not in dict.keys():
             dict[i[0]] = []
+        if i[1] not in dict.keys():
+            dict[i[1]] = []
         dict[i[0]].append(i[1])
 
     updated = []
     for i in updates:
-        temp = []
-        for j in range(len(i) - 1):
-            if i[j + 1] in dict[i[j]]:
-                temp.append(i[j])
-            else:
-                shift = len(temp)
-                for k in range(len(i) - shift):
-                    if i[j] != "" and i[k + shift] in dict[i[j]]:
-                        temp.append(i[j])
-                        i[j] = ""
+        bad = True
+        for k in range(len(i) - 1):
+            if i[k+1] not in dict[i[k]]:
+                bad = False
+                break
+        if not bad:
+            updated.append(sorted(i,key=cmp_to_key(lambda item1, item2: sorting(item1,item2,dict))))
 
-            if j == len(i) - 1:
-                temp.append(i[j + 1])
-        updated.append(temp)
-
-    updated = updates
-    updated = sorted(updates, key=dict.get)
-    print(updated)
+    #print(updated)
     sum = 0
     for i in updated:
         sum += int(i[int((len(i) - 1) / 2)])
